@@ -9,6 +9,7 @@ __pycache__/
 .myenv
 
 Raw_Data/
+Clean_Data/
 # Distribution / packaging
 .Python
 build/

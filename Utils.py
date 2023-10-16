@@ -18,7 +18,7 @@ def create_dataframe():
     
     data.to_csv('data.csv', index=False)
 
-create_dataframe()
+#create_dataframe()
 
 
 """
