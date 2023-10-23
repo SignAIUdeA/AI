@@ -81,8 +81,3 @@ def _draw_landmarks(frame, results, type:str):
                                     configuration["drawing2"]
                                     )
 
-
-
-video_path = "./Raw_Data/1/S1V1C1M1A Clip1.mp4"
-cap = cv2.VideoCapture(video_path)
-transform_video(video=cap)
