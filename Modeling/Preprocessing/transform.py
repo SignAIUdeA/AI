@@ -14,4 +14,3 @@ def process_data():
             np.save("../Clean_Data/{}/{}.npy".format(str(class_name.iloc[0]),str(file_name[:-4])),result)
             bar.next()
 
-process_data()
