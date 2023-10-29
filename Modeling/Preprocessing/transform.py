@@ -4,7 +4,7 @@ import numpy as np
 from Preprocessing.holistic import transform_video
 from progress.bar import Bar
 
-df = pd.read_csv("../data.csv")
+df = pd.read_csv("../Metadata/data.csv")
 df.set_index("File",inplace=True)
 
 def process_data():
