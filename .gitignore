@@ -8,6 +8,12 @@ __pycache__/
 
 .myenv
 
+Data_Augmented_Clean/
+Data_Augmented_Raw/
+
+Modeling/X_interpolated.npy
+Modeling/y_interpolated.npy
+
 Raw_Data/
 Clean_Data/
 # Distribution / packaging
