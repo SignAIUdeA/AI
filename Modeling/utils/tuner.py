@@ -1,11 +1,15 @@
 import keras_tuner
-from keras_tuner.tuners import RandomSearch
-from keras_tuner.engine.hyperparameters import HyperParameters
-import keras
-from .metrics import f1, precision, recall
+from .metrics import precision, recall
+from .metrics import f1 as f1_metric
 import numpy as np
 import tensorflow as tf
+from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.callbacks import ReduceLROnPlateau
+from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.callbacks import ModelCheckpoint
 import os
+
+
 
 class CVTuner(keras_tuner.engine.tuner.Tuner):
 
@@ -24,7 +28,9 @@ class CVTuner(keras_tuner.engine.tuner.Tuner):
         filepath = os.path.join("models",self.get_trial_dir(trial_id), "model.h5")
         model.save(filepath)
 
+
     def run_trial(self, trial, x, y, batch_size=64, epochs=1):
+
 
         val_f1 = []
         val_precision = []
@@ -36,16 +42,22 @@ class CVTuner(keras_tuner.engine.tuner.Tuner):
             y_train, y_test = y[train_index], y[test_index]
 
             model = self.hypermodel.build(trial.hyperparameters)
+            
+            log_dir = os.path.join("logs", self.get_trial_dir(trial.trial_id))
 
-            callback = [keras.callbacks.EarlyStopping(monitor=self.goal, mode = 'max',patience=10, verbose=1)]
+            callback = [
+                EarlyStopping(monitor=self.goal, mode = 'max',patience=10, verbose=1,restore_best_weights=True),
+                ReduceLROnPlateau(monitor=self.goal, factor=0.5, patience=5, verbose=1),
+                TensorBoard(log_dir=log_dir, histogram_freq=1),
+                ModelCheckpoint(filepath=f'models/model_checkpoint/LSTM/{trial.trial_id}/best_model.h5', monitor='val_loss', save_best_only=True)
+            ]
 
-            model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, callbacks=callback, verbose=1)
+            model.fit(x_train, y_train, batch_size=batch_size,validation_split=0.3,epochs=epochs, callbacks=callback, verbose=1)
             y_pred = model.predict(x_test)
 
-            f1 = model.evaluate(x_test, y_test)
-
+            f1 = f1_metric(y_test, y_pred)
             prec = precision(y_test, y_pred)
-            rec = recall(y_test, np.round(y_pred))
+            rec = recall(y_test, y_pred)
 
             val_f1.append(f1)
             val_precision.append(prec)
@@ -55,12 +67,12 @@ class CVTuner(keras_tuner.engine.tuner.Tuner):
                 {
                     'trial_id': trial.trial_id,
                     'hyperparameters': trial.hyperparameters.values,
-                    'f1': f1,
+                    'f1': np.mean(f1),
                     'f1_std': np.std(val_f1),
                     'precision': np.mean(val_precision),
                     'precision_std': np.std(val_precision),
                     'recall': np.mean(val_recall),
-                    'recall_std': np.std(val_recall),
+                    'recall_std': np.std(val_recall)
                 }
             )
 
