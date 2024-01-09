@@ -49,10 +49,10 @@ class CVTuner(keras_tuner.engine.tuner.Tuner):
                 EarlyStopping(monitor=self.goal, mode = 'max',patience=10, verbose=1,restore_best_weights=True),
                 ReduceLROnPlateau(monitor=self.goal, factor=0.5, patience=5, verbose=1),
                 TensorBoard(log_dir=log_dir, histogram_freq=1),
-                ModelCheckpoint(filepath=f'models/model_checkpoint/LSTM/{trial.trial_id}/best_model.h5', monitor='val_loss', save_best_only=True)
+                ModelCheckpoint(filepath=f'models/model_checkpoint/{self.project_name}/{trial.trial_id}/best_model.h5', monitor=self.goal, save_best_only=True)
             ]
 
-            model.fit(x_train, y_train, batch_size=batch_size,validation_split=0.3,epochs=epochs, callbacks=callback, verbose=1)
+            model.fit(x_train, y_train, batch_size=batch_size,validation_split=0.25,epochs=epochs, callbacks=callback, verbose=1)
             y_pred = model.predict(x_test)
 
             f1 = f1_metric(y_test, y_pred)
