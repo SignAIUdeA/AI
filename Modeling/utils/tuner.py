@@ -52,7 +52,7 @@ class CVTuner(keras_tuner.engine.tuner.Tuner):
                 ModelCheckpoint(filepath=f'models/model_checkpoint/{self.project_name}/{trial.trial_id}/best_model.h5', monitor=self.goal, save_best_only=True)
             ]
 
-            model.fit(x_train, y_train, batch_size=batch_size,validation_split=0.25,epochs=epochs, callbacks=callback, verbose=1)
+            model.fit(x_train, y_train, validation_data=(x_test,y_test),epochs=epochs, callbacks=callback, verbose=1)
             y_pred = model.predict(x_test)
 
             f1 = f1_metric(y_test, y_pred)
